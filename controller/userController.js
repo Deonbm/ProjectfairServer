@@ -1,5 +1,14 @@
 const users=require('../Model/userModel')
 const jwt=require('jsonwebtoken')
+const nodemailer =require('nodemailer')
+
+const transporter =nodemailer.createTransport({
+    service:'gmail',
+    auth:{
+        user:process.env.EMAIL,
+        pass:process.env.EPSW
+    }
+})
 
 exports.registerController=async(req,res)=>{
     console.log('inside registerController');
@@ -18,6 +27,32 @@ exports.registerController=async(req,res)=>{
             const newUser=new users({username,email,password,github:"",linkedin:"",profilePic:""})
             
             await newUser.save()
+            
+
+            const emailFormat={
+                from: process.env.EMAIL,
+                to: email,
+                subject: 'Registration Successful',
+                html:
+                `<h2>Hi ${username},</h2>
+          <p>Thank you for registering with <b>MyApp</b>. We're excited to have you on board 🚀</p>
+          <p>You can now log in using your email: <b>${email}</b></p>
+          <br>
+          <p>Best regards,<br/>The MyApp Team</p>`
+
+            }
+
+            transporter.sendMail(emailFormat,(err,info)=>{
+              if(err){
+                console.log('error occurred',err);
+              }
+              else{
+                console.log('email sent',info.response);
+                
+              }
+            })
+
+
             res.status(200).json(newUser)
         }
     }
@@ -43,7 +78,7 @@ exports.loginController=async(req,res)=>{
             const token=jwt.sign({userId:existingUser._id},process.env.JWT_PASSWORD)
             res.status(200).json({user:existingUser,token})
         }else{
-            res.status(404).json('invalid email/password')
+            res.status(404).json('invalid email/password')  
 
         }
 

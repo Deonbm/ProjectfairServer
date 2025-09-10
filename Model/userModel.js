@@ -14,7 +14,7 @@ password:{
     required:true
 },
 github:{
-    type:String
+    type:String 
 },
 linkedin:{
     type:String
