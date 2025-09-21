@@ -7,6 +7,7 @@ const multerMiddleware=require('../middlewares/multerMiddleware')
 const router=new express.Router()
 
 router.post('/register',userController.registerController)
+router.get('/activate/:token',userController.activationController)
 router.post('/login',userController.loginController)
 router.post('/add-project',jwtMiddleware,multerMiddleware.single('projectimg'),projectController.addProjectController)
 router.get('/get-home-projects',projectController.getHomeProjectController)

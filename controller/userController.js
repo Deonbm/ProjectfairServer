@@ -27,7 +27,10 @@ exports.registerController=async(req,res)=>{
             const newUser=new users({username,email,password,github:"",linkedin:"",profilePic:""})
             
             await newUser.save()
+
+            const token=jwt.sign({userId:newUser._id},process.env.JWT_ACTIVATION_PSW)
             
+        const activationlink=`http://localhost:3000/activate/${token}`
 
             const emailFormat={
                 from: process.env.EMAIL,
@@ -37,6 +40,8 @@ exports.registerController=async(req,res)=>{
                 `<h2>Hi ${username},</h2>
           <p>Thank you for registering with <b>MyApp</b>. We're excited to have you on board 🚀</p>
           <p>You can now log in using your email: <b>${email}</b></p>
+          <p>Activate your account Now</p>
+          <a href=${activationlink}>Activate Now</a>
           <br>
           <p>Best regards,<br/>The MyApp Team</p>`
 
@@ -53,7 +58,7 @@ exports.registerController=async(req,res)=>{
             })
 
 
-            res.status(200).json(newUser)
+            res.status(200).json({newUser,token})
         }
     }
     catch(err){
@@ -64,29 +69,63 @@ exports.registerController=async(req,res)=>{
     
 }
 
-exports.loginController=async(req,res)=>{
-    console.log("inside loginConttroller");
+exports.activationController=async(req,res)=>{
+    console.log("inside activationController");
+    
+    const {token}=req.params
+
     try {
-        const{email,password}=req.body
-        console.log(email,password);
-        
+        const tokenverify=jwt.verify(token,process.env.JWT_ACTIVATION_PSW)
 
-        const existingUser=await users.findOne({email,password})
-        console.log(existingUser);
-        
-        if (existingUser) {
-            const token=jwt.sign({userId:existingUser._id},process.env.JWT_PASSWORD)
-            res.status(200).json({user:existingUser,token})
-        }else{
-            res.status(404).json('invalid email/password')  
-
+        const activateduser = await users.findByIdAndUpdate(
+            tokenverify.userId,
+            {Activation:1},
+            {new:true}
+        )
+      
+        if (!activateduser) {
+          return  res.status(404).json('User not found')
+            
         }
 
-    } catch (error) { 
-        res.status(401).json(error)
+        res.redirect('http://localhost:5173/login?activated=1')  
+
+
+    } catch (error) {
+        console.log(error);
+        res.status(401).json('invalid token')
         
     }
 }
+
+
+exports.loginController = async (req, res) => {
+    console.log("inside loginController");
+    try {
+      const { email, password } = req.body;
+  
+      const existingUser = await users.findOne({ email });
+      if (!existingUser) {
+        return res.status(404).json("Invalid email/password");
+      }
+  
+      if (existingUser.password !== password) {
+        return res.status(404).json("Invalid email/password");
+      }
+  
+      if (existingUser.Activation !== 1) {
+        return res.status(401).json("Please activate your account from your registered email");
+      }
+  
+      const token = jwt.sign({ userId: existingUser._id }, process.env.JWT_PASSWORD);
+      res.status(200).json({ user: existingUser, token });
+  
+    } catch (error) {
+      console.error(error);
+      res.status(500).json("Something went wrong");
+    }
+  };
+  
 
 exports.updateProfileController= async(req,res)=>{
     console.log("inside updateProfileController");
