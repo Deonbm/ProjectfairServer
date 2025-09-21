@@ -30,7 +30,7 @@ exports.registerController=async(req,res)=>{
 
             const token=jwt.sign({userId:newUser._id},process.env.JWT_ACTIVATION_PSW)
             
-        const activationlink=`http://localhost:3000/activate/${token}`
+        const activationlink=`https://projectfairserver-xgn6.onrender.com/activate/${token}`
 
             const emailFormat={
                 from: process.env.EMAIL,
@@ -88,7 +88,7 @@ exports.activationController=async(req,res)=>{
             
         }
 
-        res.redirect('https://projectfairrr-gmmy-n5t2s5omh-deons-projects-5ff7fed8.vercel.app/login?activated=1')  
+        res.redirect('http://localhost:5173/login?activated=1')  
 
 
     } catch (error) {
