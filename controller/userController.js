@@ -88,7 +88,7 @@ exports.activationController=async(req,res)=>{
             
         }
 
-        res.redirect('http://localhost:5173/login?activated=1')  
+        res.redirect('https://projectfairrr-gmmy-n5t2s5omh-deons-projects-5ff7fed8.vercel.app/login?activated=1')  
 
 
     } catch (error) {
