@@ -88,7 +88,7 @@ exports.activationController=async(req,res)=>{
             
         }
 
-        res.redirect('https://projectfairrrr-git-main-deons-projects-5ff7fed8.vercel.app/login?activated=1')  
+        res.redirect('https://projectfairrrr-bzwhl09ty-deons-projects-5ff7fed8.vercel.app/login?activated=1')  
 
 
     } catch (error) {
