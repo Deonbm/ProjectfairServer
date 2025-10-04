@@ -1,14 +1,8 @@
 const users=require('../Model/userModel')
 const jwt=require('jsonwebtoken')
-const nodemailer =require('nodemailer')
+const sgmail = require('@sendgrid/mail')
 
-const transporter =nodemailer.createTransport({
-    service:'gmail',
-    auth:{
-        user:process.env.EMAIL,
-        pass:process.env.EPSW
-    }
-})
+sgmail.setApiKey(process.env.SGKEY)
 
 exports.registerController=async(req,res)=>{
     console.log('inside registerController');
@@ -31,8 +25,8 @@ exports.registerController=async(req,res)=>{
             console.log("to email")
 
             const emailFormat={
-                from: process.env.EMAIL,
                 to: email,
+                from: process.env.EMAIL,
                 subject: 'Registration Successful',
                 html:
                 `<h2>Hi ${username},</h2>
@@ -44,20 +38,24 @@ exports.registerController=async(req,res)=>{
             }
                         console.log("to email format created")
 
-            transporter.sendMail(emailFormat,(err,info)=>{
-              if(err){
-                console.log('error occurred',err);
-              }
-              else{
-                console.log('email sent',info.response);
-                
-              }
-            })
+            console.log('Before sending email');
+            
+
+            try {
+              await sgmail.send(emailFormat);
+              console.log('Email sent successfully');
+              res.status(200).json(newUser)
+            } catch (err) {
+              console.log('Error sending email:', err);
+              res.status(403).json({ error: 'Error sending email' });
+            }
+
+            console.log('After sending email');
 
             
                          console.log("to email sent")
 
-            res.status(200).json(newUser)
+            
         }
     }
     catch(err){
