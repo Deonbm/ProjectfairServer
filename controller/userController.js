@@ -27,7 +27,8 @@ exports.registerController=async(req,res)=>{
             const newUser=new users({username,email,password,github:"",linkedin:"",profilePic:""})
             
             await newUser.save()
-            
+
+            console.log("to email")
 
             const emailFormat={
                 from: process.env.EMAIL,
@@ -41,6 +42,7 @@ exports.registerController=async(req,res)=>{
           <p>Best regards,<br/>The MyApp Team</p>`
 
             }
+                        console.log("to email format created")
 
             transporter.sendMail(emailFormat,(err,info)=>{
               if(err){
@@ -52,6 +54,8 @@ exports.registerController=async(req,res)=>{
               }
             })
 
+            
+                         console.log("to email sent")
 
             res.status(200).json(newUser)
         }
